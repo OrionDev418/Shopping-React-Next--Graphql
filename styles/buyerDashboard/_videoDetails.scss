@@ -195,11 +195,7 @@
         margin-bottom: 100px;
         overflow-y: auto;
         max-height: calc(100vh - 400px);
-      }
-      select{
-        height: 35px;
-        width: max-content;
-      }
+      }      
       .comment-new{
         bottom: 0;
       }
@@ -240,17 +236,19 @@
     }
   }
 }
+
 .comment-box-k{
     position: relative;
     background: #fff;
-    input{
+    input, select{
       width: 100%; 
       position: relative;
       background: #F8F8F8 0% 0% no-repeat padding-box;
       border: 1px solid #B8D2E2;
       border-radius: 5px;
       height: 50px;
-      padding: 15px;
+      padding: 0 15px;
+      position: relative;
     }
     button{
       position: absolute;
@@ -259,8 +257,24 @@
       color: #97A0A5;
       border: none;
       height: 50px;
-    bottom: 0;
+      bottom: 0;
     }
+    select{
+      appearance: none;
+      background-image: url(/assets/images/down.svg);
+      background-position: right 20px center;
+      background-size: 12px;
+      padding-right: 30px;
+      option{
+        font-size: 15px;
+      }
+      &::after{
+        content: '';
+        position: absolute;
+        width: 50px;
+        height: 50px;
+      }
+    }    
 }
 @media (min-width: 576px) {
   .video-details-container{

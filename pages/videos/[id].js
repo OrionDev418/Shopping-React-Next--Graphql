@@ -67,9 +67,8 @@ const NewCommentForm = ({brands}) => {
     <form onSubmit={formik.handleSubmit}>   
       {
         brands_count>1 ? (          
-          <div className="text-right mb-1">
-            <select
-              className="sort-button"
+          <div className="comment-box-k mb-1">
+            <select              
               name="brandId"
               onChange={formik.handleChange}
               value={formik.values.brand}
@@ -275,7 +274,7 @@ const TopBanner = ({
                   <div className="comments-list">
                     <CommentsList />
                   </div>                        
-                  <div className = "comment-new position-absolute w-100 bg-white">
+                  <div className = "comment-new position-absolute w-100 bg-white pt-2">
                     <NewCommentForm brands={brands}/>                    
                   </div>
                 </div>
