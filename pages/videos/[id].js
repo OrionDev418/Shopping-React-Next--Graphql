@@ -45,7 +45,6 @@ const NewCommentForm = ({brands}) => {
   if (brands.length && brands.length == 1){
     initialValues.brandId = brands[0]['id']
   }
-  console.log(brands, brands.length)
   const formik = useFormik({
     initialValues,
     validate,
@@ -106,8 +105,8 @@ const CommentsList = ({brands}) => {
     page: 1
   }
   const { data } = useQuery(FIND_COMMENTS, {variables})
-  console.log(data, 'comments')
-  const comments = [
+  // console.log(data, 'comments')
+  let comments = [
     {id: 1, body: "dkdkdkkdk", senderName: "senderName"},
     {id: 2, body: "dkdkdkkdk", senderName: "senderName"},
     {id: 3, body: "dkdkdkkdk", senderName: "senderName"},
@@ -125,15 +124,24 @@ const CommentsList = ({brands}) => {
     {id: 136, body: "dkdkdkkdk5", senderName: "senderName"},
     {id: 15, body: "dkdkdkkdk12", senderName: "senderName"},
   ]
+  comments = []
   return (
     <>
-    {
+    { comments.length ? (
       comments.map((comment, index)=>(
         <div key={index}>
           <strong>{comment.senderName}</strong>
           <p className="text-light mb-2">{comment.body}</p>
         </div>
       ))
+    ):(
+      <div className="comment-list no-scroll mt-5">
+          <div className="no-comments">
+            <img alt="comments-icon" src="/assets/images/comments-icon.svg" />
+            <p className="mt-2">No comments to display</p>
+          </div>
+        </div>
+    )      
     }
     </>
   );
@@ -166,29 +174,47 @@ const ProductsList = ({brands}) => {
     page
   }
   // const [getFindVideoProduct, { loading, data }] = useLazyQuery(FIND_VIDEO_PRODUCTS, {variables});
-  const product_da = useQuery(FIND_VIDEO_PRODUCTS, {variables})
-  console.log(product_da, 'products')
+  const product_da = useQuery(FIND_VIDEO_PRODUCTS, {variables})  
 
- 
+   useMemo(async () => {
+    // console.log(product_da, 'products', page, "page")
+    const ppp = get(await product_da.data, 'findProducts.products') || []
+    if (page ==1)
+      setProducts(ppp) 
+    else
+      setProducts([...products, ...ppp])   
+  }, [product_da.data])
 
+  const totalPages = useMemo(() => {
+    return (
+      get(product_da.data, 'findProducts.totalPages') || page
+    )
+  }, [product_da.data])
+
+  const handlePagination = async () => {
+    if (page < totalPages) {
+      setPage(prevState => prevState + 1)      
+    }
+  }
   
   const onScrolling = (e) => {
     if ((e.target.scrollTop + e.target.clientHeight) == e.target.scrollHeight){
       if (!product_da.loading){
-        console.log("scrolling bottom")
+        // console.log("scrolling bottom")
         // infinit_loading pagenation
-        // handlePagination()
+        handlePagination()
       }
     }
   } 
   return (
     <div className="brand-h-50" onScroll={onScrolling}>
       <div>
-        {products.map((product, index) => (
+        { products.length ? (
+          products.map((product, index) => (
             <div key={index}> 
               <div className="brand-details d-flex">
                 <img
-                  src={product.images[0] || "/images/Subtraction.png"}
+                  src={product.images[0] || "/images/product-icon.png"}
                   alt="Product"
                   width={50}
                   height={50}
@@ -200,9 +226,18 @@ const ProductsList = ({brands}) => {
                 </div>
               </div>
             </div>
-          ))}
-          {!products.length ? <p>No data</p> : ''}
-          {product_da.loading ? <p>Loading</p> : ''}
+          ))
+          ) : (
+            <div className="comment-list no-scroll mt-5">
+              <div className="no-comments text-center">
+                <img alt="comments-icon" src="/assets/images/product-icon.svg" />
+                <p className="mt-2">No Product to display</p>
+              </div>
+            </div>
+          )
+        }
+          {!products.length && !product_da.loading ? <p className="text-center">No data</p> : ''}
+          {product_da.loading ? <p className="text-center">Loading</p> : ''}
       </div>
     </div>
   );
@@ -267,9 +302,6 @@ const TopBanner = ({
                   </span>
                 </div>
 
-                {/* </span> */}
-                {/* List */}
-                
                 <div className="comments-containter mt-3 flex-1 position-relative">  
                   <div className="comments-list">
                     <CommentsList />
@@ -317,35 +349,50 @@ const TopBanner = ({
               </div>
             </Col>
             <Col md="4" className="brand-section">
-              <div className="p-3 h-100">
-                <h3>Brands</h3>
-                <div className="brands brand-h-50">
-                  {brands.map((brand, index) => (
-                    <Link
-                      // eslint-disable-next-line react/no-array-index-key
-                      key={`brand-${index}`}
-                      href={`/brands/${brand.id}`}
-                      target="_blank"
-                    >
-                      
-                      <div className="brand-details d-flex">
-                        <img
-                          src={brand.logo || "/images/Subtraction.png"}
-                          alt="Logo"
-                          width={50}
-                          height={50}
-                          className="mr-2"
-                        />
-                        <div>
-                          <p>View All Products</p>
-                          <p className="text-light">{brand.brandName}</p>
+              <div className="p-3 h-100 d-flex flex-column">
+                <div>
+                  <h3>Brands</h3>
+                  <div className="brands brand-h-50" style={{height: brands.length*60 + 'px'}}>
+                    {
+                      brands.length ? (
+                        brands.map((brand, index) => (
+                          <Link
+                            // eslint-disable-next-line react/no-array-index-key
+                            key={`brand-${index}`}
+                            href={`/brands/${brand.id}`}
+                            target="_blank"
+                          >
+                            
+                            <div className="brand-details d-flex">
+                              <img
+                                src={brand.logo || "/images/Subtraction.png"}
+                                alt="Logo"
+                                width={50}
+                                height={50}
+                                className="mr-2"
+                              />
+                              <div>
+                                <p>View All Products</p>
+                                <p className="text-light">{brand.brandName}</p>
+                              </div>
+                            </div>
+                          </Link>
+                        ))
+                      ): (
+                        <div className="comment-list no-scroll mt-5">
+                          <div className="no-comments text-center">
+                            <img alt="comments-icon" src="/assets/images/product-icon.svg" />
+                            <p className="mt-2">No Brand to display</p>
+                          </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                      )
+                    }
+                  </div>
                 </div>
-                <h3 className="mt-4">Products</h3>
-                <ProductsList />                
+                <div className="flex-1 d-flex flex-column">
+                  <h3 className="mt-4">Products</h3>
+                  <ProductsList />                
+                </div>
               </div>
             </Col>
           </Row>
