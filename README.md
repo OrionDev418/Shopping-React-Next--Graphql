@@ -13,3 +13,7 @@ The build is minified and the filenames include the hashes.<br />
 
 #### `yarn start`
 Starts a production server. Run build command before starting server
+
+
+#### home screen
+![homepage](./public/images/react.png)
